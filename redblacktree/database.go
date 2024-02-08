@@ -15,16 +15,16 @@ func GetNewLvelDBDatabase(path string) (*levelDB, error) {
 	return &levelDB{db}, nil
 }
 
-func (db *levelDB) putNode(node RedBlackTreeNode) error {
+func (db *levelDB) putNode(node *RedBlackTreeNode) error {
 	dbValue, err := node.Encode()
 	if err != nil {
 		return err
 	}
-	return db.db.Put(node.DBKey.DBKey[:], dbValue, nil)
+	return db.db.Put(node.DBKey[:], dbValue, nil)
 }
 
 func (db *levelDB) GetNode(nodeKey RedBlackTreeNodeDBKey) (*RedBlackTreeNode, error) {
-	bytesGotten, err := db.db.Get(nodeKey.DBKey[:], nil)
+	bytesGotten, err := db.db.Get(nodeKey[:], nil)
 	if err != nil {
 		return nil, err
 	}

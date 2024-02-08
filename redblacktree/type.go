@@ -1,14 +1,25 @@
 package redblacktree
 
+import "math/big"
+
 const (
 	NumberOfBytes int = 8
 )
 
+type Comparator func(a, b interface{}) int
+
 type RedBlackTree struct {
-	root [NumberOfBytes]byte
-	db   *levelDB
+	Root       [NumberOfBytes]byte
+	db         *levelDB
+	Comparator Comparator
+	Size       *big.Int
 }
 type Color bool
+
+type EncodableAndComparable interface {
+	Comparator(a, b Encodable) int
+	Encodable
+}
 
 type Encodable interface {
 	Encode() ([]byte, error)
@@ -22,13 +33,11 @@ type RedBlackTreeNode struct {
 
 type RedBlackTreeNodeDBValue struct {
 	Parent [NumberOfBytes]byte
-	Key    Encodable
+	Key    EncodableAndComparable
 	Value  Encodable
 	Color  Color
 	Right  [NumberOfBytes]byte
 	Left   [NumberOfBytes]byte
 }
 
-type RedBlackTreeNodeDBKey struct {
-	DBKey [NumberOfBytes]byte
-}
+type RedBlackTreeNodeDBKey [NumberOfBytes]byte
