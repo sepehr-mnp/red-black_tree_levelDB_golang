@@ -1,12 +1,18 @@
 package redblacktree
 
+import "math/big"
+
 const (
 	NumberOfBytes int = 8
 )
 
-type RedBlackTree struct {
-	root [NumberOfBytes]byte
-	db   *levelDB
+type Comparator[T any] func(x, y T) int
+
+type RedBlackTree[K comparable] struct {
+	Root       [NumberOfBytes]byte
+	size       *big.Int
+	db         *levelDB
+	Comparator Comparator[K]
 }
 type Color bool
 
