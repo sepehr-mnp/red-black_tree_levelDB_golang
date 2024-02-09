@@ -36,3 +36,7 @@ func (db *levelDB) GetNode(nodeKey RedBlackTreeNodeDBKey) (*RedBlackTreeNode, er
 	gottenNode.DBKey = nodeKey
 	return gottenNode, nil
 }
+
+func (db *levelDB) DeleteNode(nodeKey RedBlackTreeNodeDBKey) error {
+	return db.db.Delete(nodeKey[:], nil)
+}

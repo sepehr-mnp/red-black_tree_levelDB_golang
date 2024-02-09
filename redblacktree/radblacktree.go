@@ -75,3 +75,75 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 	tree.Size = tree.Size.Add(tree.Size, big.NewInt(1))
 	return nil
 }
+
+func (tree *RedBlackTree) Remove(DBKey RedBlackTreeNodeDBKey) error {
+	var child *RedBlackTreeNode
+	node, err := tree.db.GetNode(DBKey)
+	if err == nil {
+		return err
+	}
+	if node.DBValue.Right != nilByteArray && node.DBValue.Right != nilByteArray {
+		leftNode, err := tree.db.GetNode(node.DBValue.Left)
+		if err == nil {
+			return err
+		}
+		pred := leftNode.maximumNode()
+		predNode, err := tree.db.GetNode(pred)
+		if err == nil {
+			return err
+		}
+		predNode.DBValue.Parent = node.DBValue.Parent
+		tree.db.putNode(predNode)
+
+		parentNode, err := tree.db.GetNode(node.DBValue.Parent)
+		if err == nil {
+			return err
+		}
+		if parentNode.DBValue.Left == node.DBKey {
+			parentNode.DBValue.Left = parentNode.DBKey
+		} else {
+			parentNode.DBValue.Right = parentNode.DBKey
+		}
+		tree.db.putNode(parentNode)
+	}
+	if node.DBValue.Left == nilByteArray || node.DBValue.Right == nilByteArray {
+		if node.DBValue.Right == nilByteArray {
+			child, err = tree.db.GetNode(node.DBValue.Left)
+			if err == nil {
+				return err
+			}
+		} else {
+			child, err = tree.db.GetNode(node.DBValue.Right)
+			if err == nil {
+				return err
+			}
+		}
+		if node.DBValue.Color == black {
+			node.DBValue.Color = nodeColor(child)
+			tree.deleteCase1(node)
+		}
+		tree.replaceNode(node, child)
+		if node.DBValue.Parent == nilByteArray && child.DBKey != nilByteArray {
+			child.DBValue.Color = black
+		}
+	}
+	tree.Size = tree.Size.Sub(tree.Size, big.NewInt(1))
+	return nil
+}
+func nodeColor(node *RedBlackTreeNode) Color {
+	if node == nil {
+		return black
+	}
+	return node.DBValue.Color
+}
+
+func (node *RedBlackTreeNode) maximumNode() RedBlackTreeNodeDBKey {
+	if node == nil {
+		return nilByteArray
+	}
+	returner := nilByteArray
+	for node.DBValue.Right != nilByteArray {
+		returner = node.DBValue.Right
+	}
+	return returner
+}
