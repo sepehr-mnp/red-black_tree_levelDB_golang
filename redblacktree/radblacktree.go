@@ -13,8 +13,12 @@ const (
 var nilByteArray [NumberOfBytes]byte = [NumberOfBytes]byte{}
 
 // NewWith instantiates a red-black tree with the custom comparator.
-func NewWith(comparator Comparator) *RedBlackTree {
-	return &RedBlackTree{Comparator: comparator, Size: big.NewInt(0)}
+func NewWith(comparator Comparator) (*RedBlackTree, error) {
+	dbGotten, err := GetNewLvelDBDatabase("db/")
+	if err != nil {
+		return nil, err
+	}
+	return &RedBlackTree{Comparator: comparator, Size: big.NewInt(1), db: dbGotten}, nil
 }
 
 // Put inserts node into the tree.
@@ -26,6 +30,7 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 		//tree.Comparator(DBkey, DBkey)
 		tree.Root = DBKey
 		insertedNode = tree.Root
+		tree.db.putNode(&RedBlackTreeNode{DBKey: DBKey, DBValue: DBValue})
 	} else {
 		node, err := tree.db.GetNode(tree.Root)
 		if err != nil {

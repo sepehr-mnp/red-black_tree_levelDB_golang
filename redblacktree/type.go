@@ -6,6 +6,8 @@ const (
 	NumberOfBytes int = 8
 )
 
+type Color bool
+
 type Comparator func(a, b interface{}) int
 
 type RedBlackTree struct {
@@ -14,7 +16,6 @@ type RedBlackTree struct {
 	Comparator Comparator
 	Size       *big.Int
 }
-type Color bool
 
 type EncodableAndComparable interface {
 	Comparator(a, b Encodable) int
@@ -22,8 +23,8 @@ type EncodableAndComparable interface {
 }
 
 type Encodable interface {
-	Encode() ([]byte, error)
-	Decode([]byte) error
+	//Encode([]byte) error
+	//Decode([]byte) error
 }
 
 type RedBlackTreeNode struct {

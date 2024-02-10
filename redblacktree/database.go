@@ -15,6 +15,10 @@ func GetNewLvelDBDatabase(path string) (*levelDB, error) {
 	return &levelDB{db}, nil
 }
 
+func (l *levelDB) CloseDB() {
+	l.db.Close()
+}
+
 func (db *levelDB) putNode(node *RedBlackTreeNode) error {
 	dbValue, err := node.Encode()
 	if err != nil {
