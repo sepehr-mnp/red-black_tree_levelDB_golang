@@ -2,6 +2,7 @@ package redblacktree
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 )
 
@@ -322,5 +323,50 @@ func (tree *RedBlackTree) insertCase5(node *RedBlackTreeNode) {
 		tree.rotateRight(grandparent)
 	} else if node.DBKey == parent.DBValue.Right && node.DBValue.Parent == grandparent.DBValue.Right {
 		tree.rotateLeft(grandparent)
+	}
+}
+
+// / printing
+// String returns a string representation of container
+func (tree *RedBlackTree) String() string {
+	str := "RedBlackTree\n"
+	if tree.Size.Cmp(big.NewInt(0)) != 0 {
+		treeRoot, _ := tree.db.GetNode(tree.Root)
+		tree.output(treeRoot, "", true, &str)
+	}
+	return str
+}
+
+func (node *RedBlackTreeNode) String() string {
+	return fmt.Sprintf("%v", node.DBKey)
+}
+
+func (tree *RedBlackTree) output(node *RedBlackTreeNode, prefix string, isTail bool, str *string) {
+	if node.DBValue.Right != nilByteArray {
+		newPrefix := prefix
+		if isTail {
+			newPrefix += "│   "
+		} else {
+			newPrefix += "    "
+		}
+		rightNode, _ := tree.db.GetNode(node.DBValue.Right)
+		tree.output(rightNode, newPrefix, false, str)
+	}
+	*str += prefix
+	if isTail {
+		*str += "└── "
+	} else {
+		*str += "┌── "
+	}
+	*str += node.String() + "\n"
+	if node.DBValue.Left != nilByteArray {
+		newPrefix := prefix
+		if isTail {
+			newPrefix += "    "
+		} else {
+			newPrefix += "│   "
+		}
+		leftNode, _ := tree.db.GetNode(node.DBValue.Left)
+		tree.output(leftNode, newPrefix, true, str)
 	}
 }
