@@ -18,8 +18,8 @@ type RedBlackTree struct {
 }
 
 type EncodableAndComparable interface {
-	Comparator(a, b Encodable) int
-	Encodable
+	// /Comparator(a, b Encodable) int
+	//Encodable
 }
 
 type Encodable interface {

@@ -18,7 +18,7 @@ func NewWith(comparator Comparator) (*RedBlackTree, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &RedBlackTree{Comparator: comparator, Size: big.NewInt(1), db: dbGotten}, nil
+	return &RedBlackTree{Comparator: comparator, Size: big.NewInt(0), db: dbGotten}, nil
 }
 
 // Put inserts node into the tree.
@@ -31,6 +31,7 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 		tree.Root = DBKey
 		insertedNode = tree.Root
 		tree.db.putNode(&RedBlackTreeNode{DBKey: DBKey, DBValue: DBValue})
+		fmt.Println(1, " sep")
 	} else {
 		node, err := tree.db.GetNode(tree.Root)
 		if err != nil {
@@ -75,10 +76,12 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 			}
 		}
 		addingNode.DBValue.Parent = node.DBKey
+		fmt.Println(addingNode)
 		err = tree.db.putNode(addingNode)
 		if err != nil {
 			return err
 		}
+		fmt.Println(2, " sep")
 	}
 	insertedNodeGottenDB, _ := tree.db.GetNode(insertedNode)
 	tree.insertCase1(insertedNodeGottenDB)
@@ -343,10 +346,11 @@ func (tree *RedBlackTree) String() string {
 }
 
 func (node *RedBlackTreeNode) String() string {
-	return fmt.Sprintf("%v", node.DBKey)
+	return fmt.Sprintf("key: %v, right: %v, left: %v, parent, %v", node.DBKey, node.DBValue.Right, node.DBValue.Left, node.DBValue.Parent)
 }
 
 func (tree *RedBlackTree) output(node *RedBlackTreeNode, prefix string, isTail bool, str *string) {
+	fmt.Println(3, "sep")
 	if node.DBValue.Right != nilByteArray {
 		newPrefix := prefix
 		if isTail {
