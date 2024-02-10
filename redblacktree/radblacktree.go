@@ -1,6 +1,9 @@
 package redblacktree
 
-import "math/big"
+import (
+	"errors"
+	"math/big"
+)
 
 const (
 	black, red Color = true, false
@@ -84,19 +87,19 @@ func (tree *RedBlackTree) Remove(DBKey RedBlackTreeNodeDBKey) error {
 	}
 	if node.DBValue.Right != nilByteArray && node.DBValue.Right != nilByteArray {
 		leftNode, err := tree.db.GetNode(node.DBValue.Left)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 		pred := leftNode.maximumNode()
 		predNode, err := tree.db.GetNode(pred)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 		predNode.DBValue.Parent = node.DBValue.Parent
 		tree.db.putNode(predNode)
 
 		parentNode, err := tree.db.GetNode(node.DBValue.Parent)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 		if parentNode.DBValue.Left == node.DBKey {
@@ -109,12 +112,12 @@ func (tree *RedBlackTree) Remove(DBKey RedBlackTreeNodeDBKey) error {
 	if node.DBValue.Left == nilByteArray || node.DBValue.Right == nilByteArray {
 		if node.DBValue.Right == nilByteArray {
 			child, err = tree.db.GetNode(node.DBValue.Left)
-			if err == nil {
+			if err != nil {
 				return err
 			}
 		} else {
 			child, err = tree.db.GetNode(node.DBValue.Right)
-			if err == nil {
+			if err != nil {
 				return err
 			}
 		}
@@ -146,4 +149,118 @@ func (node *RedBlackTreeNode) maximumNode() RedBlackTreeNodeDBKey {
 		returner = node.DBValue.Right
 	}
 	return returner
+}
+
+// Left returns the left-most (min) node or nil if tree is empty.
+func (tree *RedBlackTree) Left() (*RedBlackTreeNode, error) {
+	var parent *RedBlackTreeNode
+	current, err := tree.db.GetNode(tree.Root)
+	if err != nil {
+		return nil, err
+	}
+	for current != nil {
+		parent = current
+		current, err = tree.db.GetNode(current.DBValue.Left)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return parent, nil
+}
+
+func (tree *RedBlackTree) lookup(key interface{}) (*RedBlackTreeNode, error) {
+	node := tree.Root
+	for node != nilByteArray {
+		currentNode, err := tree.db.GetNode(node)
+		if err != nil {
+			return nil, err
+		}
+		compare := tree.Comparator(key, currentNode.DBKey)
+		switch {
+		case compare == 0:
+			return currentNode, nil
+		case compare < 0:
+			node = currentNode.DBValue.Left
+		case compare > 0:
+			node = currentNode.DBValue.Right
+		}
+	}
+	return nil, errors.New("not found")
+}
+
+func (tree *RedBlackTree) grandparent(node *RedBlackTreeNode) *RedBlackTreeNode {
+	if node != nil && node.DBValue.Parent != nilByteArray {
+		currentNodeParent, _ := tree.db.GetNode(node.DBValue.Parent)
+		currentNodeGrandParent, _ := tree.db.GetNode(currentNodeParent.DBValue.Parent)
+		return currentNodeGrandParent
+
+	}
+	return nil
+}
+
+func (tree *RedBlackTree) uncle(node *RedBlackTreeNode) *RedBlackTreeNode {
+	if node == nil || node.DBValue.Parent == nilByteArray || tree.grandparent(node) == nil {
+		return nil
+	}
+	parent, _ := tree.db.GetNode(node.DBValue.Parent)
+	return tree.uncle(parent)
+}
+
+func (tree *RedBlackTree) sibling(node *RedBlackTreeNode) *RedBlackTreeNode {
+	if node == nil || node.DBValue.Parent == nilByteArray {
+		return nil
+	}
+	parrent, _ := tree.db.GetNode(node.DBValue.Parent)
+	if node.DBKey == parrent.DBValue.Left {
+		parrentRightChild, _ := tree.db.GetNode(parrent.DBValue.Right)
+		return parrentRightChild
+	}
+	parrentLeftChild, _ := tree.db.GetNode(parrent.DBValue.Left)
+	return parrentLeftChild
+}
+
+func (tree *RedBlackTree) rotateLeft(node *RedBlackTreeNode) {
+	right, _ := tree.db.GetNode(node.DBValue.Right)
+	tree.replaceNode(node, right)
+	node.DBValue.Right = right.DBValue.Left
+	if right.DBValue.Left != nilByteArray {
+		leftOfRight, _ := tree.db.GetNode(right.DBValue.Left)
+		leftOfRight.DBValue.Parent = node.DBKey
+	}
+	right.DBValue.Left = node.DBKey
+	node.DBValue.Parent = right.DBKey
+	tree.db.putNode(right)
+	tree.db.putNode(node)
+}
+
+func (tree *RedBlackTree) rotateRight(node *RedBlackTreeNode) {
+	left, _ := tree.db.GetNode(node.DBValue.Left)
+	tree.replaceNode(node, left)
+	node.DBValue.Left = left.DBValue.Right
+	if left.DBValue.Right != nilByteArray {
+		rightOfLeft, _ := tree.db.GetNode(left.DBValue.Right)
+		rightOfLeft.DBValue.Parent = node.DBKey
+	}
+	left.DBValue.Right = node.DBKey
+	node.DBValue.Parent = left.DBKey
+	tree.db.putNode(left)
+	tree.db.putNode(node)
+}
+
+func (tree *RedBlackTree) replaceNode(old *RedBlackTreeNode, new *RedBlackTreeNode) {
+	if old.DBValue.Parent == nilByteArray {
+		tree.Root = new.DBKey
+	} else {
+		parent, _ := tree.db.GetNode(old.DBValue.Parent)
+		if old.DBKey == parent.DBValue.Left {
+			parent.DBValue.Left = new.DBKey
+		} else {
+			parent.DBValue.Right = new.DBKey
+		}
+		tree.db.putNode(parent)
+	}
+	if new != nil {
+		new.DBValue.Parent = old.DBValue.Parent
+		tree.db.putNode(new)
+	}
 }
