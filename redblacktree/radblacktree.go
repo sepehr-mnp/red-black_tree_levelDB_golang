@@ -21,6 +21,28 @@ func NewWith(comparator Comparator) (*RedBlackTree, error) {
 	return &RedBlackTree{Comparator: comparator, Size: big.NewInt(0), db: dbGotten}, nil
 }
 
+func (tree *RedBlackTree) Save() error {
+	return tree.db.Save(tree.Root)
+}
+
+func (tree *RedBlackTree) Load() error {
+	DBKey, err := tree.db.Load()
+	tree.Root = DBKey
+	tree.Size = big.NewInt(7)
+	var key [8]byte
+	copy(key[:], "00000012")
+	if key == tree.Root {
+		fmt.Println("baghali")
+	}
+	node, err := tree.db.GetNode(tree.Root)
+	fmt.Println(tree.Root, "sep ", key, node)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 // Put inserts node into the tree.
 // Key should adhere to the comparator's type assertion, otherwise method panics.
 func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeNodeDBValue) error {
@@ -31,7 +53,6 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 		tree.Root = DBKey
 		insertedNode = tree.Root
 		tree.db.putNode(&RedBlackTreeNode{DBKey: DBKey, DBValue: DBValue})
-		fmt.Println(1, " sep")
 	} else {
 		node, err := tree.db.GetNode(tree.Root)
 		if err != nil {
@@ -94,7 +115,6 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 		if err != nil {
 			return err
 		}
-		fmt.Println(2, " sep")
 	}
 	insertedNodeGottenDB, _ := tree.db.GetNode(insertedNode)
 	tree.insertCase1(insertedNodeGottenDB)
@@ -363,7 +383,6 @@ func (node *RedBlackTreeNode) String() string {
 }
 
 func (tree *RedBlackTree) output(node *RedBlackTreeNode, prefix string, isTail bool, str *string) {
-	fmt.Println(3, "sep")
 	if node.DBValue.Right != nilByteArray {
 		newPrefix := prefix
 		if isTail {

@@ -1,6 +1,10 @@
 package redblacktree
 
-import "github.com/syndtr/goleveldb/leveldb"
+import (
+	"fmt"
+
+	"github.com/syndtr/goleveldb/leveldb"
+)
 
 type levelDB struct {
 	db *leveldb.DB
@@ -43,4 +47,21 @@ func (db *levelDB) GetNode(nodeKey RedBlackTreeNodeDBKey) (*RedBlackTreeNode, er
 
 func (db *levelDB) DeleteNode(nodeKey RedBlackTreeNodeDBKey) error {
 	return db.db.Delete(nodeKey[:], nil)
+}
+
+func (db *levelDB) Save(root RedBlackTreeNodeDBKey) error {
+	fmt.Println(root)
+	return db.db.Put([]byte("00000000"), root[:], nil) // reserved address for root
+}
+
+func (db *levelDB) Load() ([NumberOfBytes]byte, error) {
+	byteArrayGotten, err := db.db.Get([]byte("00000000"), nil)
+	fmt.Println(1, byteArrayGotten)
+	//gottenDBKey := &RedBlackTreeNodeDBKey{}
+	//err = gottenDBKey.Decode(byteArrayGotten)
+	//fmt.Println(2, gottenDBKey)
+	//return gottenDBKey, err
+	var key [NumberOfBytes]byte
+	copy(key[:], byteArrayGotten)
+	return key, err
 }
