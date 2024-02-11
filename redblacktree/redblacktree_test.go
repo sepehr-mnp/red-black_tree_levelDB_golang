@@ -34,6 +34,8 @@ func TestRedBlackTreePut(t *testing.T) {
 	var key3 [8]byte
 	copy(key3[:], "00000003")
 	tree.Put(key3, RedBlackTreeNodeDBValue{Value: "ba", Key: 12})
+	copy(key3[:], "00000004")
+	tree.Put(key3, RedBlackTreeNodeDBValue{Value: "ba", Key: 1212})
 	// tree.Put(1, RedBlackTreeNodeDBValue{Value: "a"}) // 1->a, 2->b (in order, replacement)
 	// tree.Put(3, RedBlackTreeNodeDBValue{Value: "c"}) // 1->a, 2->b, 3->c (in order)
 	// tree.Put(4, RedBlackTreeNodeDBValue{Value: "d"}) // 1->a, 2->b, 3->c, 4->d (in order)

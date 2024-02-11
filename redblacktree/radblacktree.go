@@ -45,6 +45,10 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 			case compare == 0:
 				node.DBKey = DBKey
 				node.DBValue = DBValue
+				err = tree.db.putNode(node)
+				if err != nil {
+					return err
+				}
 				return nil
 			case compare < 0:
 				if node.DBValue.Left == nilByteArray {
@@ -53,7 +57,12 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 					node.DBValue.Left = DBKey
 
 					insertedNode = node.DBValue.Left
+
 					loop = false
+					err = tree.db.putNode(node)
+					if err != nil {
+						return err
+					}
 				} else {
 					node, err = tree.db.GetNode(node.DBValue.Left)
 					if err != nil {
@@ -67,6 +76,10 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 
 					insertedNode = node.DBValue.Right
 					loop = false
+					err = tree.db.putNode(node)
+					if err != nil {
+						return err
+					}
 				} else {
 					node, err = tree.db.GetNode(node.DBValue.Right)
 					if err != nil {

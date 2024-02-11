@@ -122,3 +122,31 @@
 11:22:19.654254 db@close closing
 11:22:19.675725 db@write was delayed N·4 T·4.910969ms
 11:22:19.679804 db@close done T·25.547878ms
+=============== Feb 11, 2024 (+0330) ===============
+11:00:06.061085 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:00:06.088433 version@stat F·[9] S·3KiB[3KiB] Sc·[2.25]
+11:00:06.090084 db@open opening
+11:00:06.092547 journal@recovery F·1
+11:00:06.094335 journal@recovery recovering @27
+11:00:06.116388 memdb@flush created L0@29 N·4 S·387B "00000002,v41":"00000012,v39"
+11:00:06.120789 version@stat F·[10] S·3KiB[3KiB] Sc·[2.50]
+11:00:06.184750 db@janitor F·12 G·0
+11:00:06.185285 db@open done T·94.900153ms
+11:00:06.185405 table@compaction L0·10 -> L1·0 S·3KiB Q·43
+11:00:06.199162 db@close closing
+11:00:06.282018 db@write was delayed N·6 T·7.804049ms
+11:00:06.289703 db@close done T·90.537185ms
+=============== Feb 11, 2024 (+0330) ===============
+11:02:46.293312 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:02:46.308120 version@stat F·[10] S·3KiB[3KiB] Sc·[2.50]
+11:02:46.309827 db@open opening
+11:02:46.313380 journal@recovery F·1
+11:02:46.315534 journal@recovery recovering @30
+11:02:46.330756 memdb@flush created L0@32 N·6 S·441B "00000002,v48":"00000012,v44"
+11:02:46.334161 version@stat F·[11] S·3KiB[3KiB] Sc·[2.75]
+11:02:46.400280 db@janitor F·13 G·0
+11:02:46.401029 db@open done T·90.647902ms
+11:02:46.401267 table@compaction L0·11 -> L1·0 S·3KiB Q·50
+11:02:46.417613 db@close closing
+11:02:46.444527 db@write was delayed N·8 T·9.606066ms
+11:02:46.456880 db@close done T·39.263383ms
