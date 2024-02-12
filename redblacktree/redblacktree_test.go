@@ -19,7 +19,7 @@ func IntComparator(a, b interface{}) int {
 	}
 }
 
-func TestRedBlackTreePut(t *testing.T) {
+func TestRedBlackTreePutAndLoad(t *testing.T) {
 	tree, err := NewWith(IntComparator)
 	defer tree.db.CloseDB()
 	if err != nil {
@@ -43,7 +43,7 @@ func TestRedBlackTreePut(t *testing.T) {
 	// tree.Put(key, RedBlackTreeNodeDBValue{Value: "poapba", Key: 1212})
 	// copy(key[:], "00000007")
 	// tree.Put(key, RedBlackTreeNodeDBValue{Value: "lallaba", Key: 18})
-	t.Log(tree.Size)
+	// t.Log(tree.Size)
 	fmt.Println(tree)
 
 }

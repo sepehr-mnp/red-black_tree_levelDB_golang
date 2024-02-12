@@ -22,23 +22,13 @@ func NewWith(comparator Comparator) (*RedBlackTree, error) {
 }
 
 func (tree *RedBlackTree) Save() error {
-	return tree.db.Save(tree.Root)
+	return tree.db.Save(tree)
 }
 
 func (tree *RedBlackTree) Load() error {
-	DBKey, err := tree.db.Load()
-	tree.Root = DBKey
-	tree.Size = big.NewInt(7)
-	var key [8]byte
-	copy(key[:], "00000012")
-	if key == tree.Root {
-		fmt.Println("baghali")
-	}
-	node, err := tree.db.GetNode(tree.Root)
-	fmt.Println(tree.Root, "sep ", key, node)
-	if err != nil {
-		return err
-	}
+	gottenTree, err := tree.db.Load()
+	tree.Root = gottenTree.Root
+	tree.Size = gottenTree.Size
 
 	return err
 }
