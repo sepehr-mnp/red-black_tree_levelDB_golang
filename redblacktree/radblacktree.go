@@ -100,13 +100,14 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 			}
 		}
 		addingNode.DBValue.Parent = node.DBKey
-		fmt.Println(addingNode)
+
 		err = tree.db.putNode(addingNode)
 		if err != nil {
 			return err
 		}
 	}
 	insertedNodeGottenDB, _ := tree.db.GetNode(insertedNode)
+	fmt.Println(insertedNodeGottenDB)
 	tree.insertCase1(insertedNodeGottenDB)
 	tree.Size = tree.Size.Add(tree.Size, big.NewInt(1))
 	return nil
@@ -262,8 +263,11 @@ func (tree *RedBlackTree) sibling(node *RedBlackTreeNode) *RedBlackTreeNode {
 }
 
 func (tree *RedBlackTree) rotateLeft(node *RedBlackTreeNode) {
+
 	right, _ := tree.db.GetNode(node.DBValue.Right)
+
 	tree.replaceNode(node, right)
+
 	node.DBValue.Right = right.DBValue.Left
 	if right.DBValue.Left != nilByteArray {
 		leftOfRight, _ := tree.db.GetNode(right.DBValue.Left)
@@ -273,6 +277,7 @@ func (tree *RedBlackTree) rotateLeft(node *RedBlackTreeNode) {
 	node.DBValue.Parent = right.DBKey
 	tree.db.putNode(right)
 	tree.db.putNode(node)
+	fmt.Println("sepp: ", 15, node)
 }
 
 func (tree *RedBlackTree) rotateRight(node *RedBlackTreeNode) {
@@ -308,19 +313,25 @@ func (tree *RedBlackTree) replaceNode(old *RedBlackTreeNode, new *RedBlackTreeNo
 }
 
 func (tree *RedBlackTree) insertCase1(node *RedBlackTreeNode) {
+
 	if node.DBValue.Parent == nilByteArray {
 		node.DBValue.Color = black
 		tree.db.putNode(node)
 	} else {
+
+		fmt.Println("sepp: ", 1)
 		tree.insertCase2(node)
 	}
 }
 
 func (tree *RedBlackTree) insertCase2(node *RedBlackTreeNode) {
-	parent, _ := tree.db.GetNode(node.DBValue.Right)
+	parent, _ := tree.db.GetNode(node.DBValue.Parent)
+	fmt.Println("sepp:", 7, parent.DBValue.Color)
 	if nodeColor(parent) == black {
 		return
 	}
+
+	fmt.Println("sepp: ", 2)
 	tree.insertCase3(node)
 }
 
@@ -335,8 +346,13 @@ func (tree *RedBlackTree) insertCase3(node *RedBlackTreeNode) {
 		tree.db.putNode(parent)
 		tree.db.putNode(uncle)
 		tree.db.putNode(grandParent)
+
+		fmt.Println("sepp: ", 3)
 		tree.insertCase1(grandParent)
 	} else {
+
+		fmt.Println("sepp: ", 4)
+
 		tree.insertCase4(node)
 	}
 }
@@ -346,15 +362,24 @@ func (tree *RedBlackTree) insertCase4(node *RedBlackTreeNode) {
 	parent, _ := tree.db.GetNode(node.DBValue.Parent)
 	if node.DBKey == parent.DBValue.Right && node.DBValue.Parent == grandParent.DBValue.Left {
 		tree.rotateLeft(parent)
-		node, _ = tree.db.GetNode(node.DBValue.Left) /// should i did the mappings too?
+
+		node, _ = tree.db.GetNode(node.DBKey)
+		fmt.Println("sepp: ", 13, node)
+		node, _ = tree.db.GetNode(node.DBValue.Left) /// should i have done the mappings too?
 	} else if node.DBKey == parent.DBValue.Left && node.DBValue.Parent == grandParent.DBValue.Right {
 		tree.rotateRight(parent)
+		node, _ = tree.db.GetNode(node.DBKey)
+		fmt.Println("sepp: ", 14)
 		node, _ = tree.db.GetNode(node.DBValue.Right)
 	}
+
+	fmt.Println("sepp: ", 5)
+	fmt.Println("sepp: ", 9, node)
 	tree.insertCase5(node)
 }
 
 func (tree *RedBlackTree) insertCase5(node *RedBlackTreeNode) {
+	fmt.Println("sepp: ", 8, node)
 	parent, _ := tree.db.GetNode(node.DBValue.Parent)
 	parent.DBValue.Color = black
 	grandparent := tree.grandparent(node)
@@ -364,6 +389,8 @@ func (tree *RedBlackTree) insertCase5(node *RedBlackTreeNode) {
 	} else if node.DBKey == parent.DBValue.Right && node.DBValue.Parent == grandparent.DBValue.Right {
 		tree.rotateLeft(grandparent)
 	}
+
+	fmt.Println("sepp: ", 6)
 }
 
 // / printing
@@ -378,7 +405,7 @@ func (tree *RedBlackTree) String() string {
 }
 
 func (node *RedBlackTreeNode) String() string {
-	return fmt.Sprintf("key: %v, right: %v, left: %v, parent, %v", node.DBKey, node.DBValue.Right, node.DBValue.Left, node.DBValue.Parent)
+	return fmt.Sprintf("value: %v, key: %v, right: %v, left: %v, parent, %v", node.DBValue.Key, node.DBKey, node.DBValue.Right, node.DBValue.Left, node.DBValue.Parent)
 }
 
 func (tree *RedBlackTree) output(node *RedBlackTreeNode, prefix string, isTail bool, str *string) {
