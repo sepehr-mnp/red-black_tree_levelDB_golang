@@ -246,7 +246,7 @@ func (tree *RedBlackTree) uncle(node *RedBlackTreeNode) *RedBlackTreeNode {
 		return nil
 	}
 	parent, _ := tree.db.GetNode(node.DBValue.Parent)
-	return tree.uncle(parent)
+	return tree.sibling(parent)
 }
 
 func (tree *RedBlackTree) sibling(node *RedBlackTreeNode) *RedBlackTreeNode {
@@ -337,6 +337,7 @@ func (tree *RedBlackTree) insertCase2(node *RedBlackTreeNode) {
 
 func (tree *RedBlackTree) insertCase3(node *RedBlackTreeNode) {
 	uncle := tree.uncle(node)
+	fmt.Println("sepp:", 16, nodeColor(uncle))
 	if nodeColor(uncle) == red {
 		parent, _ := tree.db.GetNode(node.DBValue.Parent)
 		parent.DBValue.Color = black
@@ -382,8 +383,10 @@ func (tree *RedBlackTree) insertCase5(node *RedBlackTreeNode) {
 	fmt.Println("sepp: ", 8, node)
 	parent, _ := tree.db.GetNode(node.DBValue.Parent)
 	parent.DBValue.Color = black
+	tree.db.putNode(parent)
 	grandparent := tree.grandparent(node)
 	grandparent.DBValue.Color = red
+	tree.db.putNode(grandparent)
 	if node.DBKey == parent.DBValue.Left && node.DBValue.Parent == grandparent.DBValue.Left {
 		tree.rotateRight(grandparent)
 	} else if node.DBKey == parent.DBValue.Right && node.DBValue.Parent == grandparent.DBValue.Right {
