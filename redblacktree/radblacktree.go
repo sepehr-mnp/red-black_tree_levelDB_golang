@@ -112,60 +112,60 @@ func (tree *RedBlackTree) Put(DBKey RedBlackTreeNodeDBKey, DBValue RedBlackTreeN
 	return nil
 }
 
-// func (tree *RedBlackTree) Remove(DBKey RedBlackTreeNodeDBKey) error {
-// 	var child *RedBlackTreeNode
-// 	node, err := tree.db.GetNode(DBKey)
-// 	if err == nil {
-// 		return err
-// 	}
-// 	if node.DBValue.Right != nilByteArray && node.DBValue.Right != nilByteArray {
-// 		leftNode, err := tree.db.GetNode(node.DBValue.Left)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		pred := leftNode.maximumNode()
-// 		predNode, err := tree.db.GetNode(pred)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		predNode.DBValue.Parent = node.DBValue.Parent
-// 		tree.db.putNode(predNode)
+func (tree *RedBlackTree) Remove(DBKey RedBlackTreeNodeDBKey) error {
+	var child *RedBlackTreeNode
+	node, err := tree.db.GetNode(DBKey)
+	if err == nil {
+		return err
+	}
+	if node.DBValue.Right != nilByteArray && node.DBValue.Right != nilByteArray {
+		leftNode, err := tree.db.GetNode(node.DBValue.Left)
+		if err != nil {
+			return err
+		}
+		pred := leftNode.maximumNode()
+		predNode, err := tree.db.GetNode(pred)
+		if err != nil {
+			return err
+		}
+		predNode.DBValue.Parent = node.DBValue.Parent
+		tree.db.putNode(predNode)
 
-//			parentNode, err := tree.db.GetNode(node.DBValue.Parent)
-//			if err != nil {
-//				return err
-//			}
-//			if parentNode.DBValue.Left == node.DBKey {
-//				parentNode.DBValue.Left = parentNode.DBKey
-//			} else {
-//				parentNode.DBValue.Right = parentNode.DBKey
-//			}
-//			tree.db.putNode(parentNode)
-//		}
-//		if node.DBValue.Left == nilByteArray || node.DBValue.Right == nilByteArray {
-//			if node.DBValue.Right == nilByteArray {
-//				child, err = tree.db.GetNode(node.DBValue.Left)
-//				if err != nil {
-//					return err
-//				}
-//			} else {
-//				child, err = tree.db.GetNode(node.DBValue.Right)
-//				if err != nil {
-//					return err
-//				}
-//			}
-//			if node.DBValue.Color == black {
-//				node.DBValue.Color = nodeColor(child)
-//				tree.deleteCase1(node)
-//			}
-//			tree.replaceNode(node, child)
-//			if node.DBValue.Parent == nilByteArray && child.DBKey != nilByteArray {
-//				child.DBValue.Color = black
-//			}
-//		}
-//		tree.Size = tree.Size.Sub(tree.Size, big.NewInt(1))
-//		return nil
-//	}
+		parentNode, err := tree.db.GetNode(node.DBValue.Parent)
+		if err != nil {
+			return err
+		}
+		if parentNode.DBValue.Left == node.DBKey {
+			parentNode.DBValue.Left = parentNode.DBKey
+		} else {
+			parentNode.DBValue.Right = parentNode.DBKey
+		}
+		tree.db.putNode(parentNode)
+	}
+	if node.DBValue.Left == nilByteArray || node.DBValue.Right == nilByteArray {
+		if node.DBValue.Right == nilByteArray {
+			child, err = tree.db.GetNode(node.DBValue.Left)
+			if err != nil {
+				return err
+			}
+		} else {
+			child, err = tree.db.GetNode(node.DBValue.Right)
+			if err != nil {
+				return err
+			}
+		}
+		if node.DBValue.Color == black {
+			node.DBValue.Color = nodeColor(child)
+			tree.deleteCase1(node)
+		}
+		tree.replaceNode(node, child)
+		if node.DBValue.Parent == nilByteArray && child.DBKey != nilByteArray {
+			child.DBValue.Color = black
+		}
+	}
+	tree.Size = tree.Size.Sub(tree.Size, big.NewInt(1))
+	return nil
+}
 func nodeColor(node *RedBlackTreeNode) Color {
 	if node == nil {
 		return black
@@ -399,5 +399,85 @@ func (tree *RedBlackTree) output(node *RedBlackTreeNode, prefix string, isTail b
 		}
 		leftNode, _ := tree.db.GetNode(node.DBValue.Left)
 		tree.output(leftNode, newPrefix, true, str)
+	}
+}
+
+func (tree *RedBlackTree) deleteCase1(node *RedBlackTreeNode) {
+	if node.DBValue.Parent == nilByteArray {
+		return
+	}
+	tree.deleteCase2(node)
+}
+
+func (tree *RedBlackTree) deleteCase2(node *RedBlackTreeNode) {
+	sibling := node.sibling()
+	if nodeColor(sibling) == red {
+		node.Parent.color = red
+		sibling.color = black
+		if node == node.Parent.Left {
+			tree.rotateLeft(node.Parent)
+		} else {
+			tree.rotateRight(node.Parent)
+		}
+	}
+	tree.deleteCase3(node)
+}
+
+func (tree *RedBlackTree) deleteCase3(node *RedBlackTreeNode) {
+	sibling := node.sibling()
+	if nodeColor(node.Parent) == black &&
+		nodeColor(sibling) == black &&
+		nodeColor(sibling.Left) == black &&
+		nodeColor(sibling.Right) == black {
+		sibling.color = red
+		tree.deleteCase1(node.Parent)
+	} else {
+		tree.deleteCase4(node)
+	}
+}
+
+func (tree *RedBlackTree) deleteCase4(node *RedBlackTreeNode) {
+	sibling := node.sibling()
+	if nodeColor(node.Parent) == red &&
+		nodeColor(sibling) == black &&
+		nodeColor(sibling.Left) == black &&
+		nodeColor(sibling.Right) == black {
+		sibling.color = red
+		node.Parent.color = black
+	} else {
+		tree.deleteCase5(node)
+	}
+}
+
+func (tree *RedBlackTree) deleteCase5(node *RedBlackTreeNode) {
+	sibling := node.sibling()
+	if node == node.Parent.Left &&
+		nodeColor(sibling) == black &&
+		nodeColor(sibling.Left) == red &&
+		nodeColor(sibling.Right) == black {
+		sibling.color = red
+		sibling.Left.color = black
+		tree.rotateRight(sibling)
+	} else if node == node.Parent.Right &&
+		nodeColor(sibling) == black &&
+		nodeColor(sibling.Right) == red &&
+		nodeColor(sibling.Left) == black {
+		sibling.color = red
+		sibling.Right.color = black
+		tree.rotateLeft(sibling)
+	}
+	tree.deleteCase6(node)
+}
+
+func (tree *RedBlackTree) deleteCase6(node *RedBlackTreeNode) {
+	sibling := node.sibling()
+	sibling.color = nodeColor(node.Parent)
+	node.Parent.color = black
+	if node == node.Parent.Left && nodeColor(sibling.Right) == red {
+		sibling.Right.color = black
+		tree.rotateLeft(node.Parent)
+	} else if nodeColor(sibling.Left) == red {
+		sibling.Left.color = black
+		tree.rotateRight(node.Parent)
 	}
 }
