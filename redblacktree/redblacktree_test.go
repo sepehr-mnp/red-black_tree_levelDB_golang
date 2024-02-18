@@ -31,7 +31,7 @@ func TestRedBlackTreePutAndLoad(t *testing.T) {
 	defer tree.Save()
 	var key [8]byte
 
-	copy(key[:], "00000012")
+	copy(key[:], "00000013")
 	err = tree.Put(key, RedBlackTreeNodeDBValue{Value: "x", Key: 120}) // 1->x
 	t.Log("sss:", err)
 
@@ -63,12 +63,11 @@ func TestRedBlackTreePutAndLoad(t *testing.T) {
 	//err = tree.Remove(key)
 	// t.Log("sepppp ", err)
 
-	// copy(key[:], "00000002")
-	// err = tree.Remove(key)
-	// t.Log("sepppp ", err)
+	copy(key[:], "00000008")
+	err = tree.Remove(key)
+	t.Log("sepppp ", err)
 	t.Log(tree.Size)
 	fmt.Println(tree)
-
 }
 
 // func TestRedBlackTreeDelAndLoad(t *testing.T) {
